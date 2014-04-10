@@ -1,0 +1,31 @@
+<domain type='kvm'>
+  <name>test1_vm1</name>
+  <memory>512000</memory>
+  <currentMemory>512000</currentMemory>
+  <vcpu>1</vcpu>
+  <os>
+    <type arch='x86_64' machine='pc'>hvm</type>
+    <boot dev='hd' />
+    <kernel>/var/lib/libvirt/images/guest.kernel</kernel>
+    <cmdline>console=ttyS0 root=/dev/hda rw ip=dhcp</cmdline>
+  </os>
+  <devices>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='raw' cache='none' io='threads'/>
+      <source file='/var/lib/libvirt/images/vm1.img' />
+      <target dev='hda' bus='ide' />
+    </disk>
+    <interface type='bridge'>
+      <mac address='de:ef:be:f9:bf:73'/>
+      <model type='virtio'/>
+      <source bridge='ovirtmgmt'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/> 
+    </interface>
+    <serial type='pty'>
+      <target port='0'/>
+    </serial>
+    <console type='pty'>
+      <target type='serial' port='0'/>
+    </console>
+  </devices>
+</domain>
