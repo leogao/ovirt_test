@@ -17,6 +17,7 @@ COMPRESSED='yes'
 CPULOAD='yes'
 NETLOAD='yes'
 
+MAX_DOWNTIME=10
 WAITTIME=10
 
 mkdir -p $log_path
@@ -34,12 +35,13 @@ wait_vm_up()
 
 clean_vm()
 {
-	virsh destroy vm1
+	virsh destroy vm1 >/dev/null
 	sleep $(($WAITTIME/2))
 }
 
 create_vm()
 {
+	[[ -n $(virsh list | grep vm1) ]] && clean_vm
 	for((j=30;j>0;j--)); do
 		virsh create vm1.xml
 		wait_vm_up
@@ -78,6 +80,7 @@ collect_data()
 
 	echo > $data_file
 	echo > $backdata_file
+	TIMES=1
 	COUNT=$1
 	#MAX=$(awk 'BEGIN{print '$COUNT'/2}')
 	MAX=$COUNT
@@ -86,13 +89,17 @@ collect_data()
 		prepare_vm
 		if [[ X$COMPRESSED = X'yes' ]]; then
 			bash migration_test.sh -i $REMOTE_IP -c >> $data_file
+			[[ $? -eq 1 ]] && i=$((i+1))
 		else
 			bash migration_test.sh -i $REMOTE_IP >> $data_file
+			[[ $? -eq 1 ]] && i=$((i+1))
 		fi
 		$REMOTE_RUN -i $REMOTE_IP -f ssh_run -e "bash count.sh" >> $data_file
 		$REMOTE_RUN -i $REMOTE_IP -f ssh_run -e "virsh destroy vm1" >> $data_file
 		$REMOTE_RUN -i $REMOTE_IP -f ssh_run -e "rm -rf /tmp/migrate.log" >/dev/null
+		TIMES=$((TIMES+1))
 	done
+	echo "=== $TIMES times live migration done, $((TIMES-COUNT)) times can NOT got net downtime value ==="
 }
 
 prename()

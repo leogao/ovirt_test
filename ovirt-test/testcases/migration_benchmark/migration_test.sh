@@ -143,6 +143,17 @@ if __name__ == '__main__':
 EOF
 }
 
+max_value()
+{
+	# Compare max value, especially for float.
+	echo | awk -v n1=$1 -v n2=$2 '{
+		if (n1>n2) 
+			printf ("%s\n", n1) 
+		else 
+			printf ("%s\n", n2)
+		}'
+}
+
 net_downtime()
 {
 	# client start
@@ -153,7 +164,14 @@ net_downtime()
 
 	cat net_downtime.elem
 	NET_DOWNTIME=$(grep 'Updated maximum network delay:' net_downtime.elem | tail -1 | awk '{print $5}')
+	if [[ -n $NET_DOWNTIME ]]; then
+		MAX_DOWNTIME=$(max_value $MAX_DOWNTIME $NET_DOWNTIME)
+	else
+		return 1
+		NET_DOWNTIME=$MAX_DOWNTIME
+	fi
 	echo "downtime_net: $NET_DOWNTIME milliseconds"
+	echo "max_downtime_net: $MAX_DOWNTIME milliseconds"
 }
 
 
