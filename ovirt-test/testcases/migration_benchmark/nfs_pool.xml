@@ -1,0 +1,10 @@
+<pool type="netfs">
+  <name>nfs_pool</name>
+  <source>
+    <host name='10.0.1.10'/>
+    <dir path='/export/data'/>
+  </source>
+  <target>
+    <path>/var/lib/libvirt/images</path>
+  </target>
+</pool>

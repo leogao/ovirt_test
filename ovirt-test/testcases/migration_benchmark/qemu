@@ -1,0 +1,29 @@
+#!/bin/bash
+# time across machines is not very accurate, even with time servers
+# use "started" - "migrate" time to get the total time for migration
+H=$1
+A=$2
+S=$3
+stamp() {
+    echo -n "$H $A start(NS): " >> /tmp/migrate.log
+    echo `date +%s%N` >> /tmp/migrate.log
+}
+
+# migrate is called at the beginning of a migration
+if [ "$A" = "migrate" ]; then
+    stamp
+
+# release is called with libvirt releases all resources
+elif [ "$A" = "release" ]; then
+    stamp
+
+# started is called after guest proc has successfully started
+elif [ "$A" = "started" ]; then
+    stamp
+
+elif [ "$A" = "start" ]; then
+    stamp
+
+elif [ "$A" = "prepare" ]; then
+    stamp
+fi
